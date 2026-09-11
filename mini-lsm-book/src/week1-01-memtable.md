@@ -47,7 +47,7 @@ First, let us implement the in-memory structure of an LSM storage engine: the me
 
 You will also notice that `MemTable` does not have a `delete` method. In Mini-LSM, a key associated with an empty value represents a deletion.
 
-In this task, implement `MemTable::get` and `MemTable::put`. The `put` method should overwrite an existing entry with the same key, so a single memtable never contains multiple entries for one key.
+In this task, implement `MemTable::create`, `MemTable::get`, and `MemTable::put`. Day 1 uses `MemTable::create` to initialize the plain in-memory memtable. The `put` method should overwrite an existing entry with the same key, so a single memtable never contains multiple entries for one key.
 
 We use the `bytes` crate to store data in the memtable. `bytes::Bytes` is similar to `Arc<[u8]>`: cloning or slicing a `Bytes` value does not copy its underlying data, so both operations are inexpensive. Instead, each operation creates another reference to the same storage, which is freed when no references remain.
 
@@ -72,6 +72,8 @@ Your `delete` implementation should store an empty slice for the key. This entry
 To access the memtable, acquire the `state` lock. Because `MemTable::put` requires only an immutable reference, you need only a read lock on `state`, even when writing to the memtable. This design allows multiple threads to access the memtable concurrently.
 
 ## Task 3: Write Path - Freezing a Memtable
+
+Day 1 continues to use the plain `MemTable::create` constructor. `MemTable::create_with_wal`, `MemTable::recover_from_wal`, and the `Wal` APIs belong to Week 2 Day 6, not Day 1. The snippets below preview only how WAL-backed creation can happen outside the state lock; do not implement or copy that future work as part of Day 1.
 
 In this task, you will need to modify:
 
